@@ -4,8 +4,8 @@ from pathlib import Path
 
 from confluent_kafka import avro
 
-from models.producer import Producer
-from models.turnstile_hardware import TurnstileHardware
+from producers.models.producer import Producer
+from producers.models.turnstile_hardware import TurnstileHardware
 
 
 logger = logging.getLogger(__name__)
@@ -17,9 +17,9 @@ class Turnstile(Producer):
     #
     # TODO: Define this value schema in `schemas/turnstile_value.json, then uncomment the below
     #
-    #value_schema = avro.load(
-    #    f"{Path(__file__).parents[0]}/schemas/turnstile_value.json"
-    #)
+    value_schema = avro.load(
+       f"{Path(__file__).parents[0]}/schemas/turnstile_value.json"
+    )
 
     def __init__(self, station):
         """Create the Turnstile"""
@@ -38,11 +38,11 @@ class Turnstile(Producer):
         #
         #
         super().__init__(
-            f"{station_name}", # TODO: Come up with a better topic name
+            f"stations.{station_name}.turnstile",
             key_schema=Turnstile.key_schema,
-            # TODO: value_schema=Turnstile.value_schema, TODO: Uncomment once schema is defined
-            # TODO: num_partitions=???,
-            # TODO: num_replicas=???,
+            value_schema=Turnstile.value_schema,
+            num_partitions=20,
+            num_replicas=5,
         )
         self.station = station
         self.turnstile_hardware = TurnstileHardware(station)
@@ -57,3 +57,15 @@ class Turnstile(Producer):
         # of entries that were calculated
         #
         #
+        self.producer.produce(
+            topic=self.topic_name,
+            key={"timestamp": self.time_millis()},
+            value={
+                "station_id": self.station_id,
+                "station_name": self.station.name,
+                "line": self.station.color,
+                "num_entries": num_entries
+            },
+            key_schema=self.key_schema,
+            value_schema=self.value_schema
+        )

@@ -7,6 +7,8 @@ from confluent_kafka import avro
 from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka.avro import AvroProducer
 
+from utils.url import KAFKA_URLS, SCHEMA_REGISTRY_URL
+
 logger = logging.getLogger(__name__)
 
 
@@ -38,10 +40,13 @@ class Producer:
         #
         #
         self.broker_properties = {
-            # TODO
-            # TODO
-            # TODO
+            "bootstrap.servers": KAFKA_URLS,
+            "schema.registry.url": SCHEMA_REGISTRY_URL
         }
+
+        self.client: AdminClient = AdminClient(
+            self.broker_properties
+        )
 
         # If the topic does not already exist, try to create it
         if self.topic_name not in Producer.existing_topics:
@@ -49,8 +54,9 @@ class Producer:
             Producer.existing_topics.add(self.topic_name)
 
         # TODO: Configure the AvroProducer
-        # self.producer = AvroProducer(
-        # )
+        self.producer = AvroProducer(
+            self.broker_properties
+        )
 
     def create_topic(self):
         """Creates the producer topic if it does not already exist"""
@@ -60,9 +66,17 @@ class Producer:
         # the Kafka Broker.
         #
         #
-        logger.info("topic creation kafka integration incomplete - skipping")
+        existing_topics = self.client.list_topics()
+        if self.topic_name in existing_topics:
+            logger.info(f"The specified topic ({self.topic_name}) is already existed")
+        else:
+            self.client.create_topics(self.topic_name)
+            logger.info(f"creating a new topic, {self.topic_name}")
+            Producer.existing_topics = {*Producer.existing_topics, self.topic_name}
+            logger.info(f"add topic, {self.topic_name} to existing_topics")
 
-    def time_millis(self):
+    @staticmethod
+    def time_millis():
         return int(round(time.time() * 1000))
 
     def close(self):
@@ -72,7 +86,8 @@ class Producer:
         # TODO: Write cleanup code for the Producer here
         #
         #
-        logger.info("producer close incomplete - skipping")
+        self.client.delete_topics(self.topic_name)
+        logger.info(f"Gracefully closing ... delete topic, {self.topic_name}")
 
     def time_millis(self):
         """Use this function to get the key for Kafka Events"""
