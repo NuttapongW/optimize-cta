@@ -28,7 +28,7 @@ class Station(Producer):
             .replace("'", "")
         )
 
-        topic_name = f"stations.{station_name}.arrival"
+        topic_name = f"stations.arrival"
         super().__init__(
             topic_name,
             key_schema=Station.key_schema,
