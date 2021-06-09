@@ -1,7 +1,7 @@
 {
   "namespace": "com.udacity",
   "type": "record",
-  "name": "arrival.value",
+  "name": "turnstile.value",
   "fields": [
     {
       "name": "station_id",
@@ -17,7 +17,7 @@
     },
     {
       "name": "num_entries",
-      "type": "integer"
+      "type": "int"
     }
   ]
 }
