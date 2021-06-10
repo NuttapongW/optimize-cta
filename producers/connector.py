@@ -15,6 +15,9 @@ CONNECTOR_NAME = "stations"
 JDBC_USER = "cta_admin"
 JDBC_PASS = "chicago"
 
+PREFIX = "jdbc_"
+STATIONS_TABLE_NAME = "stations"
+
 
 def configure_connector():
     """Starts and configures the Kafka Connect connector"""
@@ -40,10 +43,10 @@ def configure_connector():
                "connection.url": url.POSTGRESQL_URL,
                "connection.user": JDBC_USER,
                "connection.password": JDBC_PASS,
-               "table.whitelist": "stations",
+               "table.whitelist": STATIONS_TABLE_NAME,
                "mode": "incrementing",
                "incrementing.column.name": "stop_id",
-               "topic.prefix": "jdbc_",
+               "topic.prefix": PREFIX,
                "poll.interval.ms": "1000",
            }
        }),
