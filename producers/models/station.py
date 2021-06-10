@@ -1,6 +1,5 @@
 """Methods pertaining to loading and configuring CTA "L" station data."""
 import logging
-import random
 from pathlib import Path
 
 from confluent_kafka import avro
