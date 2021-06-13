@@ -67,5 +67,4 @@ class Producer:
 
     def close(self):
         """Prepares the producer for exit by cleaning up the producer"""
-        self.client.delete_topics(self.topic_name)
-        logger.info(f"Gracefully closing ... delete topic, {self.topic_name}")
+        self.producer.flush()
