@@ -29,7 +29,7 @@ class TransformedStation(faust.Record):
 
 
 ingested_topic_name = "jdbc_stations"
-out_topic_name = "transform_stations"
+out_topic_name = "org.chicago.cta.stations.table.v1"
 
 # TODO: Define a Faust Stream that ingests data from the Kafka Connect stations topic and
 #   places it into a new topic with only the necessary information.
