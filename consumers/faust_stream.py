@@ -37,28 +37,18 @@ app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memor
 ingested_topic = app.topic(ingested_topic_name, value_type=Station)
 out_topic = app.topic(out_topic_name, partitions=1)
 # # TODO: Define a Faust Table
-# table = app.Table(
-#    # "TODO",
-#    # default=TODO,
-#    partitions=1,
-#    changelog_topic=out_topic,
-# )
-
-
-def transformer(station: Station) -> TransformedStation:
-    line = "red" if station.red else "blue" if station.blue else "green"
-    return TransformedStation(
-        station_id=station.station_id,
-        station_name=station.station_name,
-        order=station.order,
-        line=line
-    )
+table = app.Table(
+   "station",
+   default=int,
+   partitions=1,
+   changelog_topic=out_topic,
+)
 
 
 @app.agent(ingested_topic)
 async def transform_stations(stations):
-    async for key, station in stations.items():
-        await out_topic.send(key=key, value=transformer(station))
+    async for station in stations:
+        table[station.station_id] = "red" if station.red else "blue" if station.blue else "green"
 
 
 if __name__ == "__main__":

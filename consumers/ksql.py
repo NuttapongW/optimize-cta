@@ -16,8 +16,7 @@ KSQL_STATEMENT = """
 CREATE TABLE turnstile (
     station_id BIGINT,
     station_name VARCHAR,
-    line VARCHAR,
-    num_entries INTEGER
+    line VARCHAR
 ) WITH (
     KAFKA_TOPIC='stations.turnstile',
     VALUE_FORMAT='avro',
@@ -30,8 +29,7 @@ WITH (
     ) AS
     SELECT
         station_id,
-        COUNT(station_name) AS count,
-        SUM(num_entries) AS total_entries
+        COUNT(station_name) AS count
     FROM turnstile
     GROUP BY station_id;
 """
