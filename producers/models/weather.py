@@ -29,7 +29,7 @@ class Weather(Producer):
 
     def __init__(self, month):
         super().__init__(
-            "weather",
+            "org.chicago.cta.weather.v1",
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
         )
@@ -57,7 +57,7 @@ class Weather(Producer):
         elif month in Weather.summer_months:
             mode = 1.0
         self.temp += min(max(-20.0, random.triangular(-10.0, 10.0, mode)), 100.0)
-        self.status = random.choice(list(Weather.status))
+        self.status = random.choice(list(Weather.status)).name
 
     def run(self, month):
         self._set_weather(month)
@@ -90,5 +90,5 @@ class Weather(Producer):
         logger.debug(
             "sent weather data to kafka, temp: %s, status: %s",
             self.temp,
-            self.status.name,
+            self.status,
         )

@@ -27,7 +27,7 @@ class Station(Producer):
             .replace("'", "")
         )
 
-        topic_name = f"stations.arrival"
+        topic_name = f"org.chicago.cta.station.arrivals.{station_name}"
         super().__init__(
             topic_name,
             key_schema=Station.key_schema,
@@ -46,13 +46,12 @@ class Station(Producer):
 
     def run(self, train, direction, prev_station_id, prev_direction):
         """Simulates train arrivals at this station"""
-        logger.info(f"train ({train.train_id}) is arriving")
         data = {
             "station_id": self.station_id,
             "train_id": train.train_id,
             "direction": direction,
             "line": self.color.name,
-            "train_status": train.status,
+            "train_status": train.status.name,
             "prev_station_id": prev_station_id,
             "prev_direction": prev_direction
         }
