@@ -1,6 +1,5 @@
 """Contains functionality related to Weather"""
 import logging
-import json
 
 
 logger = logging.getLogger(__name__)
@@ -17,7 +16,7 @@ class Weather:
     def process_message(self, message):
         """Handles incoming weather data"""
         try:
-            value = json.loads(message.value())
+            value = message.value()
             self.temperature = value["temperature"]
             self.status = value["status"]
         except Exception as e:

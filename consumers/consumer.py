@@ -33,8 +33,11 @@ class KafkaConsumer:
 
         self.broker_properties = {
             "bootstrap.servers": KAFKA_URL,
-            "group.id": "3"
+            "group.id": "0"
         }
+
+        if self.offset_earliest:
+            self.broker_properties["auto.offset.reset"] = "earliest"
 
         if is_avro is True:
             self.broker_properties["schema.registry.url"] = SCHEMA_REGISTRY_URL
