@@ -43,11 +43,11 @@ class Weather(Producer):
 
         if Weather.key_schema is None:
             with open(f"{Path(__file__).parents[0]}/schemas/weather_key.json") as f:
-                Weather.key_schema = json.load(f)
+                Weather.key_schema = f.read()
 
         if Weather.value_schema is None:
             with open(f"{Path(__file__).parents[0]}/schemas/weather_value.json") as f:
-                Weather.value_schema = json.load(f)
+                Weather.value_schema = f.read()
 
     def _set_weather(self, month):
         """Returns the current weather"""
@@ -80,8 +80,8 @@ class Weather(Producer):
                            }
                        }
                    ],
-                   "value_schema": self.value_schema,
-                   "key_schema": self.key_schema
+                   "value_schema": Weather.value_schema,
+                   "key_schema": Weather.key_schema
                }
            ),
         )

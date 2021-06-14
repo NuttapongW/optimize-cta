@@ -29,26 +29,34 @@ class TransformedStation(faust.Record):
 
 
 ingested_topic_name = "jdbc_stations"
-out_topic_name = "org.chicago.cta.stations.table.v1"
+transform_topic_name = "org.chicago.cta.stations.table.v1"
 
-# TODO: Define a Faust Stream that ingests data from the Kafka Connect stations topic and
-#   places it into a new topic with only the necessary information.
 app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
 ingested_topic = app.topic(ingested_topic_name, value_type=Station)
-out_topic = app.topic(out_topic_name, partitions=1)
-# # TODO: Define a Faust Table
+out_topic = app.topic("out_topic", partitions=1)
 table = app.Table(
-   "station",
+   "line",
    default=int,
    partitions=1,
    changelog_topic=out_topic,
 )
+transform_topic = app.topic(transform_topic_name, partitions=1)
+
+
+def transformer(station: Station) -> TransformedStation:
+    line = "red" if station.red else "blue" if station.blue else "green"
+    return TransformedStation(
+        station_id=station.station_id,
+        station_name=station.station_name,
+        order=station.order,
+        line=line
+    )
 
 
 @app.agent(ingested_topic)
 async def transform_stations(stations):
-    async for station in stations:
-        table[station.station_id] = "red" if station.red else "blue" if station.blue else "green"
+    async for key, station in stations.items():
+        await transform_topic.send(key=key, value=transformer(station))
 
 
 if __name__ == "__main__":
